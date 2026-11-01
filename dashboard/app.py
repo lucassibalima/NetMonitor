@@ -1,18 +1,22 @@
+
 import time
-ULTIMAS_METRICAS = {}
-ULTIMAS_ATUALIZACOES = {}
-from flask import Flask, render_template_string
 import socket
 import json
 import threading
 import os
+
+from flask import Flask, render_template_string
+
+
 app = Flask(__name__)
+
 TOKEN = os.getenv("TOKEN", "netmonitor2026")
 
-app = Flask(__name__)
-
 ULTIMAS_METRICAS = {}
+ULTIMAS_ATUALIZACOES = {}
+
 lock = threading.Lock()
+
 
 HTML = """
 <!DOCTYPE html>
@@ -21,6 +25,7 @@ HTML = """
     <meta charset="UTF-8">
     <title>NetMonitor</title>
     <meta http-equiv="refresh" content="5">
+
     <style>
         body {
             background: #101827;
@@ -56,6 +61,7 @@ HTML = """
         }
     </style>
 </head>
+
 <body>
     <h1>NetMonitor</h1>
     <p>Monitoramento centralizado de servidores</p>
@@ -64,8 +70,10 @@ HTML = """
 
     {% if metricas %}
         <div class="container">
+
             {% for hostname, dados in metricas.items() %}
                 <div class="card">
+
                     <h2>{{ hostname }}</h2>
 
                     <h3>CPU</h3>
@@ -79,13 +87,16 @@ HTML = """
 
                     <p>Sistema: {{ dados.sistema }}</p>
                     <p>Última atualização: {{ dados.horario }}</p>
+
                     {% if dados.status == "Online" %}
-    <p class="status">● Online</p>
-{% else %}
-    <p style="color: #f87171;">● Offline</p>
-{% endif %}
+                        <p class="status">● Online</p>
+                    {% else %}
+                        <p style="color: #f87171;">● Offline</p>
+                    {% endif %}
+
                 </div>
             {% endfor %}
+
         </div>
     {% else %}
         <h2>Aguardando dados dos agentes...</h2>
@@ -97,6 +108,7 @@ HTML = """
 
 def atender_agente(conexao, endereco):
     print(f"Agente conectado: {endereco}")
+
     buffer = b""
 
     try:
@@ -116,11 +128,13 @@ def atender_agente(conexao, endereco):
                         continue
 
                     try:
-                        metricas = json.loads(mensagem.decode("utf-8"))
+                        metricas = json.loads(
+                            mensagem.decode("utf-8")
+                        )
 
                         if metricas.get("token") != TOKEN:
-                           print("Agente rejeitado: token inválido.")
-                           continue
+                            print("Agente rejeitado: token inválido.")
+                            continue
 
                         hostname = metricas.get("hostname")
 
@@ -145,7 +159,13 @@ def atender_agente(conexao, endereco):
 
 def receber_dados():
     servidor = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    servidor.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+
+    servidor.setsockopt(
+        socket.SOL_SOCKET,
+        socket.SO_REUSEADDR,
+        1
+    )
+
     servidor.bind(("0.0.0.0", 9000))
     servidor.listen()
 
@@ -183,7 +203,15 @@ def inicio():
 
 
 if __name__ == "__main__":
-    thread = threading.Thread(target=receber_dados, daemon=True)
+    thread = threading.Thread(
+        target=receber_dados,
+        daemon=True
+    )
+
     thread.start()
 
-    app.run(host="0.0.0.0", port=5001, debug=False)
+    app.run(
+        host="0.0.0.0",
+        port=5001,
+        debug=False
+    )
