@@ -1,0 +1,24 @@
+services:
+  agente1:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: netmonitor-agente1
+    environment:
+      - SERVIDOR=host.docker.internal
+      - PORTA=9000
+      - NOME_AGENTE=Servidor-Linux-1
+      - TOKEN=netmonitor2026
+    restart: unless-stopped
+
+  agente2:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: netmonitor-agente2
+    environment:
+      - SERVIDOR=host.docker.internal
+      - PORTA=9000
+      - NOME_AGENTE=Servidor-Linux-2
+      - TOKEN=netmonitor2026
+    restart: unless-stopped
